@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const healthRouter = require('./routes/health');
+const expensesRouter = require('./routes/expenses');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 // Routes
 // ---------------------
 app.use('/health', healthRouter);
+app.use('/expenses', expensesRouter);
 
 // 404 handler
 app.use((req, res) => {
