@@ -1,7 +1,10 @@
-import React from 'react';
 import { Wallet, TrendingDown, Target } from 'lucide-react';
+import usePreferences from '../hooks/usePreferences';
+import { formatCurrency } from '../services/preferences';
 
 const SummaryStats = ({ summary, isLoading }) => {
+  const { preferences } = usePreferences();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -18,13 +21,13 @@ const SummaryStats = ({ summary, isLoading }) => {
   const stats = [
     {
       title: 'Total Spent',
-      value: `Rs. ${summary?.totalAmount?.toLocaleString() || '0'}`,
+      value: formatCurrency(summary?.totalAmount || 0, preferences),
       icon: Wallet,
       color: 'blue'
     },
     {
       title: 'Average Daily',
-      value: `Rs. ${summary?.averageAmount?.toLocaleString() || '0'}`,
+      value: formatCurrency(summary?.averageAmount || 0, preferences),
       icon: TrendingDown,
       color: 'emerald'
     },

@@ -1,10 +1,13 @@
-import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import usePreferences from '../hooks/usePreferences';
+import { formatCurrency } from '../services/preferences';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Charts = ({ summary }) => {
+  const { preferences } = usePreferences();
+
   if (!summary || !summary.categoryBreakdown || Object.keys(summary.categoryBreakdown).length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-slate-500">
@@ -54,6 +57,7 @@ const Charts = ({ summary }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
+        display: preferences.showChartLegend,
         position: 'right',
         labels: {
           color: '#cbd5e1', // slate-300
@@ -79,7 +83,7 @@ const Charts = ({ summary }) => {
               label += ': ';
             }
             if (context.parsed !== null) {
-              label += new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR' }).format(context.parsed);
+              label += formatCurrency(context.parsed, preferences);
             }
             return label;
           }

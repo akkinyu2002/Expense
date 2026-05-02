@@ -1,28 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 
-const VoiceInput = ({ onTranscription }) => {
+const VoiceInput = ({ language = 'en-US', onTranscription }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [isSupported, setIsSupported] = useState(true);
+  const [isSupported] = useState(() => Boolean(window.SpeechRecognition || window.webkitSpeechRecognition));
   const [error, setError] = useState(null);
-  
-  // Use speech recognition API
-  const [recognition, setRecognition] = useState(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     // Check browser support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
-      setIsSupported(false);
       return;
     }
 
     const rec = new SpeechRecognition();
     rec.continuous = false;
     rec.interimResults = true;
-    rec.lang = 'en-US';
+    rec.lang = language;
 
     rec.onresult = (event) => {
       let currentTranscript = '';
@@ -42,8 +39,13 @@ const VoiceInput = ({ onTranscription }) => {
       setIsRecording(false);
     };
 
-    setRecognition(rec);
-  }, []);
+    recognitionRef.current = rec;
+
+    return () => {
+      rec.abort();
+      recognitionRef.current = null;
+    };
+  }, [language]);
 
   // Update parent when recording stops and we have a transcript
   useEffect(() => {
@@ -56,6 +58,8 @@ const VoiceInput = ({ onTranscription }) => {
   }, [isRecording, transcript, error, onTranscription]);
 
   const toggleRecording = useCallback(() => {
+    const recognition = recognitionRef.current;
+
     if (!recognition) return;
 
     if (isRecording) {
@@ -67,11 +71,11 @@ const VoiceInput = ({ onTranscription }) => {
       try {
         recognition.start();
         setIsRecording(true);
-      } catch (err) {
+      } catch {
         setError('Failed to start microphone');
       }
     }
-  }, [recognition, isRecording]);
+  }, [isRecording]);
 
   if (!isSupported) {
     return (

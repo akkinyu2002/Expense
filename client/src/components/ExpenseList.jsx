@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expenseService } from '../services/api';
 import { Trash2, ShoppingBag, Coffee, Car, FileText, Film, CircleDollarSign } from 'lucide-react';
+import usePreferences from '../hooks/usePreferences';
+import { formatCurrency } from '../services/preferences';
 
 const CategoryIcon = ({ category }) => {
   switch (category) {
@@ -14,25 +16,36 @@ const CategoryIcon = ({ category }) => {
 };
 
 const ExpenseList = ({ limit, refreshTrigger }) => {
+  const { preferences } = usePreferences();
   const [expenses, setExpenses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchExpenses = async () => {
-    setIsLoading(true);
-    try {
-      const data = await expenseService.getExpenses(limit ? { limit } : {});
-      setExpenses(data.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load expenses');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchExpenses = async () => {
+      setIsLoading(true);
+      try {
+        const data = await expenseService.getExpenses(limit ? { limit } : {});
+        if (!isMounted) return;
+        setExpenses(data.data);
+        setError(null);
+      } catch {
+        if (!isMounted) return;
+        setError('Failed to load expenses');
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
     fetchExpenses();
+
+    return () => {
+      isMounted = false;
+    };
   }, [limit, refreshTrigger]);
 
   const handleDelete = async (id) => {
@@ -41,7 +54,7 @@ const ExpenseList = ({ limit, refreshTrigger }) => {
     try {
       await expenseService.deleteExpense(id);
       setExpenses(expenses.filter(e => e.id !== id));
-    } catch (err) {
+    } catch {
       alert('Failed to delete expense');
     }
   };
@@ -105,12 +118,12 @@ const ExpenseList = ({ limit, refreshTrigger }) => {
                 {new Date(expense.date).toLocaleDateString()}
               </td>
               <td className="py-4 px-4 text-right font-medium text-slate-200">
-                Rs. {expense.amount.toLocaleString()}
+                {formatCurrency(expense.amount, preferences)}
               </td>
               <td className="py-4 px-4 text-right">
                 <button 
                   onClick={() => handleDelete(expense.id)}
-                  className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
                   aria-label="Delete expense"
                 >
                   <Trash2 size={16} />

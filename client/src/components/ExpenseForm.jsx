@@ -1,20 +1,50 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expenseService } from '../services/api';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import VoiceInput from './VoiceInput';
+import usePreferences from '../hooks/usePreferences';
+import { categories, getCurrencySymbol } from '../services/preferences';
+
+const DRAFT_STORAGE_KEY = 'expenseai.expense-form-draft.v1';
+
+const today = () => new Date().toISOString().split('T')[0];
+
+const createEmptyFormData = (preferences) => ({
+  amount: '',
+  description: '',
+  category: preferences.autoCategorize ? '' : preferences.defaultCategory,
+  date: today(),
+});
+
+const loadFormData = (preferences) => {
+  if (!preferences.saveDrafts) {
+    return createEmptyFormData(preferences);
+  }
+
+  try {
+    const stored = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+    return stored ? { ...createEmptyFormData(preferences), ...JSON.parse(stored) } : createEmptyFormData(preferences);
+  } catch {
+    return createEmptyFormData(preferences);
+  }
+};
 
 const ExpenseForm = ({ onSuccess }) => {
-  const [formData, setFormData] = useState({
-    amount: '',
-    description: '',
-    category: '',
-    date: new Date().toISOString().split('T')[0],
-  });
+  const { preferences } = usePreferences();
+  const [formData, setFormData] = useState(() => loadFormData(preferences));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const currencySymbol = getCurrencySymbol(preferences);
 
-  const categories = ['Food', 'Transport', 'Bills', 'Shopping', 'Entertainment', 'Other'];
+  useEffect(() => {
+    if (!preferences.saveDrafts) {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+  }, [formData, preferences.saveDrafts]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,12 +92,8 @@ const ExpenseForm = ({ onSuccess }) => {
       const result = await expenseService.createExpense(payload);
       
       setSuccess(true);
-      setFormData({
-        amount: '',
-        description: '',
-        category: '',
-        date: new Date().toISOString().split('T')[0],
-      });
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      setFormData(createEmptyFormData(preferences));
       
       if (onSuccess) onSuccess(result.data);
       
@@ -83,7 +109,10 @@ const ExpenseForm = ({ onSuccess }) => {
   return (
     <div className="w-full relative z-20 space-y-6">
       <div className="pb-6 border-b border-slate-700/50 flex flex-col items-center justify-center">
-        <VoiceInput onTranscription={handleVoiceTranscription} />
+        <VoiceInput
+          language={preferences.speechLanguage}
+          onTranscription={handleVoiceTranscription}
+        />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -100,9 +129,9 @@ const ExpenseForm = ({ onSuccess }) => {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-400 mb-1">Amount (Rs.) *</label>
+        <label className="block text-sm font-medium text-slate-400 mb-1">Amount ({currencySymbol}) *</label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">Rs.</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">{currencySymbol}</span>
           <input
             type="number"
             name="amount"
@@ -131,14 +160,16 @@ const ExpenseForm = ({ onSuccess }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-1">Category (Optional)</label>
+          <label className="block text-sm font-medium text-slate-400 mb-1">Category</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
             className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3 px-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
           >
-            <option value="">Auto-categorize (AI)</option>
+            <option value="">
+              {preferences.autoCategorize ? 'Auto-categorize (AI)' : 'Choose category'}
+            </option>
             {categories.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
             ))}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expenseService } from '../services/api';
 import { Lightbulb, TrendingUp, TrendingDown, Info, AlertCircle, Sparkles } from 'lucide-react';
 

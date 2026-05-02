@@ -1,10 +1,6 @@
-import React from 'react';
 import ExpenseForm from '../components/ExpenseForm';
-import { useNavigate } from 'react-router-dom';
 
 const AddExpense = () => {
-  const navigate = useNavigate();
-
   const handleSuccess = () => {
     // Optionally redirect to dashboard after adding
     // navigate('/');
