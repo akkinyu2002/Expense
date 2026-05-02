@@ -1,24 +1,27 @@
-import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Settings, Wallet } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, Sparkles, Wallet } from 'lucide-react';
+import usePreferences from '../hooks/usePreferences';
+import { formatCurrency } from '../services/preferences';
 
 const Layout = () => {
   const location = useLocation();
+  const { preferences } = usePreferences();
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Add Expense', path: '/add', icon: PlusCircle },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
-    <div className="flex h-screen w-full bg-slate-900 text-slate-100 overflow-hidden font-sans">
+    <div className="flex h-screen w-full overflow-hidden font-sans app-text">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 border-r border-slate-700/50 bg-slate-800/30 backdrop-blur-md hidden md:flex flex-col">
+      <aside className="hidden w-64 flex-shrink-0 border-r border-[var(--app-border)] bg-[var(--app-panel-strong)] backdrop-blur-md md:flex flex-col">
         <div className="p-6 flex items-center gap-3">
-          <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400">
+          <div className="accent-soft p-2 rounded-lg">
             <Wallet size={24} />
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+          <h1 className="text-xl font-bold text-gradient">
             ExpenseAI
           </h1>
         </div>
@@ -32,39 +35,57 @@ const Layout = () => {
               <Link
                 key={item.name}
                 to={item.path}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive 
-                    ? 'bg-blue-500/10 text-blue-400 shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]' 
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                    ? 'accent-soft accent-ring'
+                    : 'app-muted hover:text-[var(--app-text)] hover:bg-[var(--app-panel)]'
                 }`}
               >
-                <Icon size={20} className={isActive ? 'text-blue-400' : 'text-slate-500'} />
+                <Icon size={20} className={isActive ? '' : 'opacity-70'} />
                 <span className="font-medium">{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 mt-auto">
-          <button className="flex items-center gap-3 px-4 py-3 w-full text-slate-400 hover:text-slate-200 hover:bg-slate-700/30 rounded-xl transition-colors">
-            <Settings size={20} className="text-slate-500" />
-            <span className="font-medium">Settings</span>
-          </button>
+        <div className="m-4 rounded-lg app-surface p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Sparkles size={16} className="text-amber-400" />
+            Monthly Focus
+          </div>
+          <p className="mt-2 text-xs app-muted">Budget target</p>
+          <p className="mt-1 text-lg font-bold">{formatCurrency(preferences.monthlyBudget, preferences)}</p>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 relative overflow-y-auto overflow-x-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-800/40 via-slate-900 to-slate-900">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/3"></div>
-        
-        <div className="relative z-10 w-full max-w-6xl mx-auto p-6 md:p-10 min-h-full">
+      <main
+        className="flex-1 relative overflow-y-auto overflow-x-hidden"
+        style={{
+          background:
+            'linear-gradient(180deg, color-mix(in srgb, var(--app-bg-soft), var(--accent) 7%) 0%, var(--app-bg) 100%)',
+        }}
+      >
+        <header className="md:hidden sticky top-0 z-30 border-b border-[var(--app-border)] bg-[var(--app-panel-strong)]/95 px-4 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="accent-soft p-2 rounded-lg">
+              <Wallet size={20} />
+            </div>
+            <div>
+              <p className="font-bold leading-tight">ExpenseAI</p>
+              <p className="text-xs app-muted">{formatCurrency(preferences.monthlyBudget, preferences)} monthly target</p>
+            </div>
+          </div>
+        </header>
+
+        <div className="relative z-10 w-full max-w-6xl mx-auto min-h-full px-4 py-5 pb-28 md:p-[var(--page-pad)]">
           <Outlet />
         </div>
       </main>
 
       {/* Mobile Nav (Bottom) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-slate-700/50 bg-slate-800/80 backdrop-blur-xl z-50 px-6 py-3 flex justify-around items-center">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-[var(--app-border)] bg-[var(--app-panel-strong)]/95 backdrop-blur-xl z-50 px-4 py-2 flex justify-around items-center">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -73,8 +94,9 @@ const Layout = () => {
             <Link
               key={item.name}
               to={item.path}
-              className={`flex flex-col items-center gap-1 p-2 ${
-                isActive ? 'text-blue-400' : 'text-slate-400'
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex min-w-16 flex-col items-center gap-1 rounded-lg p-2 transition-colors ${
+                isActive ? 'accent-soft' : 'app-muted'
               }`}
             >
               <Icon size={24} />
