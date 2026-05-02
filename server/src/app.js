@@ -5,6 +5,8 @@ require('dotenv').config();
 const healthRouter = require('./routes/health');
 const expensesRouter = require('./routes/expenses');
 const errorHandler = require('./middleware/errorHandler');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -32,6 +34,23 @@ app.use((req, res, next) => {
 // ---------------------
 app.use('/health', healthRouter);
 app.use('/expenses', expensesRouter);
+
+// Serve client build if it exists (so visiting server root shows the UI)
+const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+
+  // Fallback to serve index.html for SPA routes (skip API routes)
+  app.use((req, res, next) => {
+    if (req.method !== 'GET') return next();
+    if (req.path.startsWith('/health') || req.path.startsWith('/expenses')) return next();
+    const indexFile = path.join(clientDist, 'index.html');
+    if (fs.existsSync(indexFile)) {
+      return res.sendFile(indexFile);
+    }
+    return next();
+  });
+}
 
 // 404 handler
 app.use((req, res) => {
