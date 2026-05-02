@@ -7,11 +7,32 @@ const Layout = () => {
   const location = useLocation();
   const { preferences } = usePreferences();
 
-  const navItems = [
+  const primaryNavItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Add Expense', path: '/add', icon: PlusCircle },
-    { name: 'Settings', path: '/settings', icon: Settings },
   ];
+  const settingsNavItem = { name: 'Settings', path: '/settings', icon: Settings };
+  const navItems = [...primaryNavItems, settingsNavItem];
+  const renderSidebarLink = (item) => {
+    const isActive = location.pathname === item.path;
+    const Icon = item.icon;
+
+    return (
+      <Link
+        key={item.name}
+        to={item.path}
+        aria-current={isActive ? 'page' : undefined}
+        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+          isActive
+            ? 'accent-soft accent-ring'
+            : 'app-muted hover:text-[var(--app-text)] hover:bg-[var(--app-panel)]'
+        }`}
+      >
+        <Icon size={20} className={isActive ? '' : 'opacity-70'} />
+        <span className="font-medium">{item.name}</span>
+      </Link>
+    );
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden font-sans app-text">
@@ -27,35 +48,19 @@ const Layout = () => {
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-2">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
-            
-            return (
-              <Link
-                key={item.name}
-                to={item.path}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                  isActive 
-                    ? 'accent-soft accent-ring'
-                    : 'app-muted hover:text-[var(--app-text)] hover:bg-[var(--app-panel)]'
-                }`}
-              >
-                <Icon size={20} className={isActive ? '' : 'opacity-70'} />
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            );
-          })}
+          {primaryNavItems.map(renderSidebarLink)}
         </nav>
 
-        <div className="m-4 rounded-lg app-surface p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Sparkles size={16} className="text-amber-400" />
-            Monthly Focus
+        <div className="m-4 space-y-3">
+          <div className="rounded-lg app-surface p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Sparkles size={16} className="text-amber-400" />
+              Monthly Focus
+            </div>
+            <p className="mt-2 text-xs app-muted">Budget target</p>
+            <p className="mt-1 text-lg font-bold">{formatCurrency(preferences.monthlyBudget, preferences)}</p>
           </div>
-          <p className="mt-2 text-xs app-muted">Budget target</p>
-          <p className="mt-1 text-lg font-bold">{formatCurrency(preferences.monthlyBudget, preferences)}</p>
+          {renderSidebarLink(settingsNavItem)}
         </div>
       </aside>
 
