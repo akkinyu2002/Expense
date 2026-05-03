@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Settings, Sparkles, Wallet } from 'lucide-react';
+import { LayoutDashboard, ListChecks, PlusCircle, Settings, Target, Wallet } from 'lucide-react';
 import usePreferences from '../hooks/usePreferences';
 import { formatCurrency } from '../services/preferences';
 
@@ -9,6 +9,7 @@ const Layout = () => {
 
   const primaryNavItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Transactions', path: '/transactions', icon: ListChecks },
     { name: 'Add Expense', path: '/add', icon: PlusCircle },
   ];
   const settingsNavItem = { name: 'Settings', path: '/settings', icon: Settings };
@@ -22,7 +23,7 @@ const Layout = () => {
         key={item.name}
         to={item.path}
         aria-current={isActive ? 'page' : undefined}
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+        className={`flex items-center gap-3 rounded-lg px-4 py-3 transition ${
           isActive
             ? 'accent-soft accent-ring'
             : 'app-muted hover:text-[var(--app-text)] hover:bg-[var(--app-panel)]'
@@ -37,12 +38,12 @@ const Layout = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden font-sans app-text">
       {/* Sidebar */}
-      <aside className="hidden w-64 flex-shrink-0 border-r border-[var(--app-border)] bg-[var(--app-panel-strong)] backdrop-blur-md md:flex flex-col">
+      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-[var(--app-border)] bg-[var(--app-panel-strong)] md:flex">
         <div className="p-6 flex items-center gap-3">
           <div className="accent-soft p-2 rounded-lg">
             <Wallet size={24} />
           </div>
-          <h1 className="text-xl font-bold text-gradient">
+          <h1 className="text-xl font-semibold app-text">
             ExpenseAI
           </h1>
         </div>
@@ -54,7 +55,7 @@ const Layout = () => {
         <div className="m-4 space-y-3">
           <div className="rounded-lg app-surface p-4">
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Sparkles size={16} className="text-amber-400" />
+              <Target size={16} className="text-emerald-400" />
               Monthly Focus
             </div>
             <p className="mt-2 text-xs app-muted">Budget target</p>
@@ -68,11 +69,10 @@ const Layout = () => {
       <main
         className="flex-1 relative overflow-y-auto overflow-x-hidden"
         style={{
-          background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--app-bg-soft), var(--accent) 7%) 0%, var(--app-bg) 100%)',
+          background: 'var(--app-bg)',
         }}
       >
-        <header className="md:hidden sticky top-0 z-30 border-b border-[var(--app-border)] bg-[var(--app-panel-strong)]/95 px-4 py-3 backdrop-blur-md">
+        <header className="sticky top-0 z-30 border-b border-[var(--app-border)] bg-[var(--app-panel-strong)] px-4 py-3 md:hidden">
           <div className="flex items-center gap-3">
             <div className="accent-soft p-2 rounded-lg">
               <Wallet size={20} />
@@ -90,7 +90,7 @@ const Layout = () => {
       </main>
 
       {/* Mobile Nav (Bottom) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-[var(--app-border)] bg-[var(--app-panel-strong)]/95 backdrop-blur-xl z-50 px-4 py-2 flex justify-around items-center">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-[var(--app-border)] bg-[var(--app-panel-strong)] px-4 py-2 md:hidden">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;

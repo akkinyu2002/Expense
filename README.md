@@ -5,8 +5,10 @@ ExpenseAI is a full-stack expense tracker with smart categorization, analytics, 
 ## Features
 
 - Add expenses with amount, description, category, and date
+- Review a full transaction ledger with date/category filters, inline edits, delete actions, and CSV export
 - Automatic category detection for common spending types
 - Dashboard summary cards, category chart, recent expenses, and spending insights
+- Monthly budget position with remaining budget, budget usage, and category exposure
 - Voice input through the browser Web Speech API
 - Editable settings for theme, accent color, density, currency, budget, default category, voice language, notifications, chart legend, and local drafts
 - Firebase Firestore persistence when credentials are configured
@@ -88,6 +90,7 @@ VITE_API_URL=http://localhost:5000
 - `GET /health` - health check
 - `POST /expenses` - create an expense
 - `GET /expenses` - list expenses with optional filters
+- `PATCH /expenses/:id` - update an expense
 - `GET /expenses/summary` - dashboard totals and category summary
 - `GET /expenses/insights` - generated spending insights
 - `GET /expenses/categories` - available categories

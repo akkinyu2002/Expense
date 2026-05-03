@@ -79,7 +79,7 @@ const VoiceInput = ({ language = 'en-US', onTranscription }) => {
 
   if (!isSupported) {
     return (
-      <div className="text-xs text-slate-500 italic px-2 py-1 bg-slate-800/50 rounded-lg inline-block border border-slate-700/50">
+      <div className="inline-block rounded-lg border border-[var(--app-border)] bg-[var(--app-input)] px-3 py-2 text-xs app-muted">
         Voice input not supported in this browser
       </div>
     );
@@ -90,33 +90,27 @@ const VoiceInput = ({ language = 'en-US', onTranscription }) => {
       <button
         type="button"
         onClick={toggleRecording}
-        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+        className={`flex h-12 w-12 items-center justify-center rounded-lg border transition ${
           isRecording 
-            ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 shadow-red-500/20 animate-pulse' 
-            : 'bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500/30 hover:scale-105'
+            ? 'border-red-500/50 bg-red-500/15 text-red-300'
+            : 'border-[var(--app-border)] bg-[var(--app-input)] text-[var(--accent)] hover:border-[var(--accent)]'
         }`}
         title={isRecording ? 'Stop recording' : 'Record expense description'}
       >
-        {isRecording ? <Loader2 className="animate-spin absolute opacity-20" size={32} /> : null}
+        {isRecording ? <Loader2 className="absolute animate-spin opacity-20" size={28} /> : null}
         {isRecording ? <MicOff size={24} className="relative z-10" /> : <Mic size={24} />}
       </button>
 
-      {/* Status or Transcript Display */}
-      <div className="mt-3 min-h-[24px] text-center w-full max-w-sm">
+      <div className="mt-3 min-h-[24px] w-full max-w-sm text-center">
         {error ? (
-          <span className="text-red-400 text-xs">{error}</span>
+          <span className="text-xs text-red-300">{error}</span>
         ) : isRecording ? (
-          <span className="text-blue-400 text-sm font-medium">Listening... {transcript}</span>
+          <span className="text-sm font-medium text-[var(--accent)]">Listening... {transcript}</span>
         ) : transcript ? (
-          <span className="text-emerald-400 text-sm font-medium">Recorded!</span>
+          <span className="text-sm font-medium text-emerald-300">Recorded</span>
         ) : (
-          <span className="text-slate-500 text-xs">Tap to speak your expense</span>
+          <span className="text-xs app-muted">Voice capture</span>
         )}
-      </div>
-      
-      {/* Helper text */}
-      <div className="mt-1 text-[10px] text-slate-600 uppercase tracking-wider font-semibold">
-        Example: "Spent 500 on pizza"
       </div>
     </div>
   );

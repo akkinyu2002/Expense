@@ -9,15 +9,28 @@ const api = axios.create({
   },
 });
 
+const toQueryString = (filters = {}) => {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, value);
+    }
+  });
+
+  return params.toString();
+};
+
 export const expenseService = {
   getExpenses: async (filters = {}) => {
-    const params = new URLSearchParams(filters);
-    const response = await api.get(`/expenses?${params}`);
+    const queryString = toQueryString(filters);
+    const response = await api.get(`/expenses${queryString ? `?${queryString}` : ''}`);
     return response.data;
   },
   
-  getSummary: async () => {
-    const response = await api.get('/expenses/summary');
+  getSummary: async (filters = {}) => {
+    const queryString = toQueryString(filters);
+    const response = await api.get(`/expenses/summary${queryString ? `?${queryString}` : ''}`);
     return response.data;
   },
   
@@ -33,6 +46,11 @@ export const expenseService = {
   
   createExpense: async (expenseData) => {
     const response = await api.post('/expenses', expenseData);
+    return response.data;
+  },
+
+  updateExpense: async (id, expenseData) => {
+    const response = await api.patch(`/expenses/${id}`, expenseData);
     return response.data;
   },
   

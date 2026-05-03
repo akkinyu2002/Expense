@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 const {
   createExpense,
+  updateExpense,
   getExpenses,
   deleteExpense,
   getExpenseSummary,
 } = require('../controllers/expenseController');
 const { categorize, getCategories } = require('../services/categorizationService');
 const { generateInsights } = require('../services/insightsService');
+
+const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
+const isValidAmount = (amount) => amount !== undefined
+  && !isNaN(parseFloat(amount))
+  && parseFloat(amount) > 0;
 
 /**
  * POST /expenses
@@ -18,17 +24,24 @@ router.post('/', async (req, res, next) => {
     const { amount, category, description, date } = req.body;
 
     // Validation
-    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+    if (!isValidAmount(amount)) {
       return res.status(400).json({
         success: false,
         error: { message: 'Amount is required and must be a positive number' },
       });
     }
 
-    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (date && !isValidDate(date)) {
       return res.status(400).json({
         success: false,
         error: { message: 'Date must be in YYYY-MM-DD format' },
+      });
+    }
+
+    if (category && !getCategories().includes(category)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Category is not supported' },
       });
     }
 
@@ -55,7 +68,7 @@ router.post('/', async (req, res, next) => {
 /**
  * GET /expenses
  * List all expenses with optional filters
- * Query params: category, startDate, endDate, limit
+ * Query params: category, startDate, endDate, search, limit
  */
 router.get('/', async (req, res, next) => {
   try {
@@ -63,6 +76,7 @@ router.get('/', async (req, res, next) => {
       category: req.query.category,
       startDate: req.query.startDate,
       endDate: req.query.endDate,
+      search: req.query.search,
       limit: req.query.limit,
     };
 
@@ -84,7 +98,12 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/summary', async (req, res, next) => {
   try {
-    const summary = await getExpenseSummary();
+    const summary = await getExpenseSummary({
+      category: req.query.category,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      search: req.query.search,
+    });
     res.status(200).json({ success: true, data: summary });
   } catch (error) {
     next(error);
@@ -114,6 +133,52 @@ router.get('/categories', (req, res) => {
     success: true,
     data: getCategories(),
   });
+});
+
+/**
+ * PATCH /expenses/:id
+ * Update an existing expense
+ */
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const { amount, category, description, date } = req.body;
+
+    if (amount !== undefined && !isValidAmount(amount)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Amount must be a positive number' },
+      });
+    }
+
+    if (date !== undefined && !isValidDate(date)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Date must be in YYYY-MM-DD format' },
+      });
+    }
+
+    if (category !== undefined && !getCategories().includes(category)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Category is not supported' },
+      });
+    }
+
+    const expense = await updateExpense(req.params.id, {
+      amount,
+      category,
+      description,
+      date,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: expense,
+      message: 'Expense updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**

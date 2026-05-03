@@ -61,23 +61,23 @@ const ExpenseList = ({ limit, refreshTrigger }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full space-y-4">
+      <div className="w-full space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-16 bg-slate-800/50 rounded-xl animate-pulse"></div>
+          <div key={i} className="h-14 animate-pulse rounded-lg bg-[var(--app-input)]"></div>
         ))}
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-400 text-center py-8">{error}</div>;
+    return <div className="py-8 text-center text-red-300">{error}</div>;
   }
 
   if (expenses.length === 0) {
     return (
-      <div className="text-slate-500 text-center py-12 flex flex-col items-center">
+      <div className="flex flex-col items-center py-12 text-center app-muted">
         <CircleDollarSign size={48} className="mb-4 opacity-20" />
-        <p>No expenses found. Start adding some!</p>
+        <p>No expenses found.</p>
       </div>
     );
   }
@@ -86,7 +86,7 @@ const ExpenseList = ({ limit, refreshTrigger }) => {
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-slate-700/50 text-slate-400 text-sm">
+          <tr className="border-b border-[var(--app-border)] text-sm app-muted">
             <th className="py-4 px-4 font-medium w-12"></th>
             <th className="py-4 px-4 font-medium">Description</th>
             <th className="py-4 px-4 font-medium">Category</th>
@@ -99,25 +99,25 @@ const ExpenseList = ({ limit, refreshTrigger }) => {
           {expenses.map((expense) => (
             <tr 
               key={expense.id} 
-              className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors group"
+              className="group border-b border-[var(--app-border)] transition-colors hover:bg-[var(--app-input)]"
             >
               <td className="py-4 px-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--app-input)]">
                   <CategoryIcon category={expense.category} />
                 </div>
               </td>
-              <td className="py-4 px-4 font-medium text-slate-200">
-                {expense.description || <span className="text-slate-500 italic">No description</span>}
+              <td className="py-4 px-4 font-medium app-text">
+                {expense.description || <span className="app-muted">No description</span>}
               </td>
               <td className="py-4 px-4">
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300">
+                <span className="rounded-lg border border-[var(--app-border)] px-2.5 py-1 text-xs font-medium app-muted">
                   {expense.category}
                 </span>
               </td>
-              <td className="py-4 px-4 text-slate-400 text-sm">
+              <td className="py-4 px-4 text-sm app-muted">
                 {new Date(expense.date).toLocaleDateString()}
               </td>
-              <td className="py-4 px-4 text-right font-medium text-slate-200">
+              <td className="py-4 px-4 text-right font-medium app-text">
                 {formatCurrency(expense.amount, preferences)}
               </td>
               <td className="py-4 px-4 text-right">

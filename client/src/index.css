@@ -24,7 +24,7 @@
   --app-panel: rgba(23, 31, 43, 0.82);
   --app-panel-strong: rgba(15, 23, 42, 0.92);
   --app-input: rgba(15, 23, 42, 0.72);
-  --app-shadow: 0 24px 80px rgba(2, 6, 23, 0.24);
+  --app-shadow: 0 12px 36px rgba(2, 6, 23, 0.18);
   --control-y: 0.75rem;
   --control-gap: 1rem;
   --page-pad: 2.5rem;
@@ -39,7 +39,7 @@
   --app-panel: rgba(255, 255, 255, 0.86);
   --app-panel-strong: rgba(255, 255, 255, 0.96);
   --app-input: rgba(255, 255, 255, 0.9);
-  --app-shadow: 0 20px 60px rgba(71, 85, 105, 0.14);
+  --app-shadow: 0 10px 28px rgba(71, 85, 105, 0.12);
 }
 
 :root[data-density='compact'] {
@@ -54,9 +54,7 @@
   }
 
   body {
-    background:
-      linear-gradient(135deg, color-mix(in srgb, var(--app-bg), var(--accent) 10%) 0%, var(--app-bg) 46%),
-      var(--app-bg);
+    background: var(--app-bg);
     color: var(--app-text);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
@@ -79,17 +77,12 @@
 @layer utilities {
   .glass {
     background: var(--app-panel);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--app-border);
     box-shadow: var(--app-shadow);
   }
   
   .text-gradient {
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(to right, var(--accent), #14b8a6, #f59e0b);
+    color: var(--app-text);
   }
 
   .accent-soft {

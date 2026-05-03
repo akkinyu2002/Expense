@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import AddExpense from './pages/AddExpense';
+import Transactions from './pages/Transactions';
 import Settings from './pages/Settings';
 import { applyPreferences, getPreferences, PREFERENCE_CHANGE_EVENT } from './services/preferences';
 
@@ -29,6 +30,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
           <Route path="add" element={<AddExpense />} />
           <Route path="settings" element={<Settings />} />
         </Route>

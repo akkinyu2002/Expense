@@ -31,6 +31,56 @@ async function createExpense(expenseData) {
 }
 
 /**
+ * Update an existing expense by ID
+ */
+async function updateExpense(id, expenseData) {
+  const db = getDb();
+  const updates = {
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (expenseData.amount !== undefined) {
+    updates.amount = parseFloat(expenseData.amount);
+  }
+
+  if (expenseData.category !== undefined) {
+    updates.category = expenseData.category || 'Other';
+  }
+
+  if (expenseData.description !== undefined) {
+    updates.description = expenseData.description || '';
+  }
+
+  if (expenseData.date !== undefined) {
+    updates.date = expenseData.date || new Date().toISOString().split('T')[0];
+  }
+
+  if (db) {
+    const docRef = db.collection('expenses').doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      throw Object.assign(new Error('Expense not found'), { statusCode: 404 });
+    }
+
+    await docRef.update(updates);
+    const updatedDoc = await docRef.get();
+    return { id: updatedDoc.id, ...updatedDoc.data() };
+  }
+
+  const index = inMemoryExpenses.findIndex(e => e.id === id);
+  if (index === -1) {
+    throw Object.assign(new Error('Expense not found'), { statusCode: 404 });
+  }
+
+  inMemoryExpenses[index] = {
+    ...inMemoryExpenses[index],
+    ...updates,
+  };
+
+  return inMemoryExpenses[index];
+}
+
+/**
  * Get all expenses with optional filters
  */
 async function getExpenses(filters = {}) {
@@ -57,7 +107,17 @@ async function getExpenses(filters = {}) {
     }
 
     const snapshot = await query.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    let results = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      results = results.filter(e => (
+        e.description?.toLowerCase().includes(search)
+        || e.category?.toLowerCase().includes(search)
+      ));
+    }
+
+    return results;
   } else {
     // In-memory fallback with basic filtering
     let results = [...inMemoryExpenses];
@@ -72,6 +132,14 @@ async function getExpenses(filters = {}) {
 
     if (filters.endDate) {
       results = results.filter(e => e.date <= filters.endDate);
+    }
+
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      results = results.filter(e => (
+        e.description?.toLowerCase().includes(search)
+        || e.category?.toLowerCase().includes(search)
+      ));
     }
 
     // Sort by createdAt descending
@@ -112,8 +180,8 @@ async function deleteExpense(id) {
 /**
  * Get expense summary/stats
  */
-async function getExpenseSummary() {
-  const expenses = await getExpenses();
+async function getExpenseSummary(filters = {}) {
+  const expenses = await getExpenses(filters);
 
   if (expenses.length === 0) {
     return {
@@ -148,4 +216,4 @@ async function getExpenseSummary() {
   };
 }
 
-module.exports = { createExpense, getExpenses, deleteExpense, getExpenseSummary };
+module.exports = { createExpense, updateExpense, getExpenses, deleteExpense, getExpenseSummary };

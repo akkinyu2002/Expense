@@ -1,17 +1,20 @@
-import { Wallet, TrendingDown, Target } from 'lucide-react';
+import { ListChecks, Target, TrendingDown, Wallet } from 'lucide-react';
 import usePreferences from '../hooks/usePreferences';
 import { formatCurrency } from '../services/preferences';
 
 const SummaryStats = ({ summary, isLoading }) => {
   const { preferences } = usePreferences();
+  const budgetPercent = preferences.monthlyBudget > 0
+    ? Math.round(((summary?.totalAmount || 0) / preferences.monthlyBudget) * 100)
+    : 0;
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="glass p-6 rounded-2xl animate-pulse bg-slate-800/50">
-            <div className="h-4 w-24 bg-slate-700 rounded mb-4"></div>
-            <div className="h-8 w-32 bg-slate-700 rounded"></div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="app-surface animate-pulse rounded-lg p-5">
+            <div className="mb-4 h-4 w-24 rounded bg-[var(--app-input)]"></div>
+            <div className="h-8 w-32 rounded bg-[var(--app-input)]"></div>
           </div>
         ))}
       </div>
@@ -23,42 +26,48 @@ const SummaryStats = ({ summary, isLoading }) => {
       title: 'Total Spent',
       value: formatCurrency(summary?.totalAmount || 0, preferences),
       icon: Wallet,
-      color: 'blue'
+      tone: 'accent',
     },
     {
-      title: 'Average Daily',
+      title: 'Transactions',
+      value: summary?.totalExpenses || 0,
+      icon: ListChecks,
+      tone: 'neutral',
+    },
+    {
+      title: 'Average Ticket',
       value: formatCurrency(summary?.averageAmount || 0, preferences),
       icon: TrendingDown,
-      color: 'emerald'
+      tone: 'success',
     },
     {
-      title: 'Top Category',
-      value: summary?.topCategory || 'N/A',
+      title: 'Budget Used',
+      value: `${budgetPercent}%`,
       icon: Target,
-      color: 'purple'
-    }
+      tone: budgetPercent >= 80 ? 'warning' : 'neutral',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      {stats.map((stat, i) => {
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {stats.map((stat) => {
         const Icon = stat.icon;
-        const colorClasses = {
-          blue: 'text-blue-400 bg-blue-500/10',
-          emerald: 'text-emerald-400 bg-emerald-500/10',
-          purple: 'text-purple-400 bg-purple-500/10'
-        }[stat.color];
+        const toneClasses = {
+          accent: 'accent-soft',
+          neutral: 'bg-slate-500/10 text-slate-300',
+          success: 'bg-emerald-500/10 text-emerald-300',
+          warning: 'bg-amber-500/10 text-amber-300',
+        }[stat.tone];
 
         return (
-          <div key={i} className="glass p-6 rounded-2xl flex items-center gap-5 border border-slate-700/50 relative overflow-hidden group hover:border-slate-600 transition-colors">
-            <div className={`p-4 rounded-2xl ${colorClasses}`}>
+          <div key={stat.title} className="app-surface rounded-lg p-5">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <p className="text-sm font-medium app-muted">{stat.title}</p>
+              <div className={`rounded-lg p-2 ${toneClasses}`}>
               <Icon size={24} />
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-400 mb-1">{stat.title}</p>
-              <h3 className="text-2xl font-bold text-slate-100">{stat.value}</h3>
-            </div>
-            <div className={`absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-20 blur-2xl group-hover:opacity-40 transition-opacity ${colorClasses.split(' ')[0].replace('text-', 'bg-')}`}></div>
+            <h3 className="truncate text-2xl font-semibold app-text">{stat.value}</h3>
           </div>
         );
       })}

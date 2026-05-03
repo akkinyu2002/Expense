@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  AlertTriangle,
   Bell,
   Check,
   Download,
@@ -100,6 +101,7 @@ const Settings = () => {
   const [draft, setDraft] = useState(preferences);
   const [activeTab, setActiveTab] = useState('general');
   const [status, setStatus] = useState('Saved');
+  const [testAlert, setTestAlert] = useState(null);
 
   const isDirty = useMemo(
     () => JSON.stringify(draft) !== JSON.stringify(preferences),
@@ -145,7 +147,20 @@ const Settings = () => {
   };
 
   const handleTestAlert = () => {
-    setStatus(draft.budgetAlerts ? 'Budget alert ready' : 'Budget alerts are off');
+    if (!draft.budgetAlerts) {
+      setTestAlert({
+        title: 'Budget alerts are off',
+        message: 'Turn on budget alerts to preview the monthly spending warning.',
+      });
+      setStatus('Budget alerts are off');
+      return;
+    }
+
+    setTestAlert({
+      title: 'Test budget alert',
+      message: `${formatCurrency(budgetUsed, draft)} used of ${formatCurrency(draft.monthlyBudget, draft)} in this preview.`,
+    });
+    setStatus('Test alert shown');
   };
 
   const renderGeneral = () => (
@@ -363,6 +378,18 @@ const Settings = () => {
             Test alert
           </button>
         </div>
+
+        {testAlert ? (
+          <div className="mt-4 flex items-start gap-3 rounded-lg border border-amber-400/30 bg-amber-500/10 p-4 text-amber-100">
+            <div className="rounded-lg bg-amber-500/15 p-2 text-amber-300">
+              <AlertTriangle size={18} />
+            </div>
+            <div>
+              <p className="font-semibold">{testAlert.title}</p>
+              <p className="mt-1 text-sm text-amber-100/80">{testAlert.message}</p>
+            </div>
+          </div>
+        ) : null}
       </Section>
     </div>
   );

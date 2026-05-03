@@ -35,7 +35,7 @@ const InsightsPanel = ({ refreshTrigger }) => {
     return (
       <div className="w-full h-full p-6 space-y-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-16 bg-slate-800/50 rounded-xl animate-pulse"></div>
+          <div key={i} className="h-16 animate-pulse rounded-lg bg-[var(--app-input)]"></div>
         ))}
       </div>
     );
@@ -43,7 +43,7 @@ const InsightsPanel = ({ refreshTrigger }) => {
 
   if (!insights || insights.length === 0) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 p-6">
+      <div className="flex h-full w-full flex-col items-center justify-center p-6 app-muted">
         <Sparkles size={32} className="mb-4 opacity-20" />
         <p>No insights generated yet.</p>
       </div>
@@ -51,41 +51,41 @@ const InsightsPanel = ({ refreshTrigger }) => {
   }
 
   return (
-    <div className="w-full h-full p-6 overflow-y-auto custom-scrollbar">
-      <div className="flex items-center gap-2 mb-6">
+    <div className="h-full w-full overflow-y-auto p-5">
+      <div className="mb-5 flex items-center gap-2">
         <Lightbulb className="text-amber-400" size={24} />
-        <h2 className="text-xl font-bold text-slate-100">AI Insights</h2>
+        <h2 className="text-lg font-semibold app-text">Insights</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {insights.map((insight, index) => {
           const bgColors = {
             success: 'bg-emerald-500/10 border-emerald-500/20',
             warning: 'bg-amber-500/10 border-amber-500/20',
             stat: 'bg-blue-500/10 border-blue-500/20',
-            info: 'bg-slate-800/50 border-slate-700/50'
+            info: 'bg-[var(--app-input)] border-[var(--app-border)]'
           };
 
           const textColors = {
             success: 'text-emerald-400',
             warning: 'text-amber-400',
             stat: 'text-blue-400',
-            info: 'text-slate-300'
+            info: 'app-text'
           };
 
           return (
             <div 
               key={index} 
-              className={`p-4 rounded-xl border ${bgColors[insight.type || 'info']} flex items-start gap-4 transition-all hover:-translate-y-1`}
+              className={`flex items-start gap-3 rounded-lg border p-4 ${bgColors[insight.type || 'info']}`}
             >
-              <div className={`p-2 rounded-lg bg-slate-900/50 shadow-inner mt-1 shrink-0`}>
+              <div className="mt-1 shrink-0 rounded-lg bg-[var(--app-panel-strong)] p-2">
                 <InsightIcon type={insight.type} />
               </div>
               <div>
                 <h4 className={`font-semibold text-sm mb-1 ${textColors[insight.type || 'info']}`}>
                   {insight.title}
                 </h4>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed app-muted">
                   {insight.message}
                 </p>
               </div>

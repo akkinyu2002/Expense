@@ -108,7 +108,7 @@ const ExpenseForm = ({ onSuccess }) => {
 
   return (
     <div className="w-full relative z-20 space-y-6">
-      <div className="pb-6 border-b border-slate-700/50 flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center border-b border-[var(--app-border)] pb-6">
         <VoiceInput
           language={preferences.speechLanguage}
           onTranscription={handleVoiceTranscription}
@@ -117,21 +117,21 @@ const ExpenseForm = ({ onSuccess }) => {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm">
+          <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
             {error}
           </div>
         )}
       
       {success && (
-        <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 p-3 rounded-lg text-sm">
+        <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-300">
           Expense added successfully!
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-400 mb-1">Amount ({currencySymbol}) *</label>
+        <label className="mb-1 block text-sm font-medium app-muted">Amount ({currencySymbol}) *</label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">{currencySymbol}</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 app-muted">{currencySymbol}</span>
           <input
             type="number"
             name="amount"
@@ -140,32 +140,32 @@ const ExpenseForm = ({ onSuccess }) => {
             step="0.01"
             value={formData.amount}
             onChange={handleChange}
-            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3 pl-12 pr-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+            className="app-field w-full rounded-lg py-3 pl-12 pr-4 transition"
             placeholder="0.00"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-400 mb-1">Description</label>
+        <label className="mb-1 block text-sm font-medium app-muted">Description</label>
         <input
           type="text"
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3 px-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-          placeholder="e.g., Pizza with friends"
+          className="app-field w-full rounded-lg px-4 py-3 transition"
+          placeholder="e.g., Client lunch"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-1">Category</label>
+          <label className="mb-1 block text-sm font-medium app-muted">Category</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3 px-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+            className="app-field w-full appearance-none rounded-lg px-4 py-3 transition"
           >
             <option value="">
               {preferences.autoCategorize ? 'Auto-categorize (AI)' : 'Choose category'}
@@ -177,14 +177,14 @@ const ExpenseForm = ({ onSuccess }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-1">Date</label>
+          <label className="mb-1 block text-sm font-medium app-muted">Date</label>
           <input
             type="date"
             name="date"
             required
             value={formData.date}
             onChange={handleChange}
-            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3 px-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
+            className="app-field w-full rounded-lg px-4 py-3 transition"
           />
         </div>
       </div>
@@ -192,7 +192,7 @@ const ExpenseForm = ({ onSuccess }) => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? (
           <Loader2 className="animate-spin" size={20} />
