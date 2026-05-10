@@ -77,7 +77,6 @@ Alternatively, provide a service account file path:
 FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
 ```
 
-If Firebase credentials are not configured, the backend falls back to mock mode for local development.
 
 For a custom frontend API URL, create `client/.env`:
 
